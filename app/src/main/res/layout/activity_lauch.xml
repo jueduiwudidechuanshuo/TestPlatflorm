@@ -32,17 +32,18 @@
         app:layout_constraintRight_toRightOf="parent">
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
             android:id="@+id/username_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:startIconDrawable="@drawable/icons8_user_24"
+            android:hint="Enter UserName"
             android:textColorHint="@color/teal_200">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:drawableStart="@drawable/icons8_user_24"
-                android:hint="Enter UserName"
+                android:background="@drawable/edit_text"
                 android:inputType="text" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -51,14 +52,16 @@
             android:id="@+id/password_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColorHint="@color/teal_200">
+            app:startIconDrawable="@drawable/icons8_password_24"
+            app:endIconMode="password_toggle"
+            android:hint="Password"
+            android:textColorHint="@color/teal_200"
+            android:layout_marginTop="10dp">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:drawableStart="@drawable/icons8_password_24"
-                android:hint="Password"
                 android:inputType="textPassword"
                 android:singleLine="true" />
 
