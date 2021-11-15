@@ -3,7 +3,7 @@
     package="com.bignerdranch.android.testplatflorm">
 
     <uses-permission android:name="android.permission.CAMERA"
-        android:require="false" />
+        android:required="false" />
 
     <application
         android:allowBackup="true"
