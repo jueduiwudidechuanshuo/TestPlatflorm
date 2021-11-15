@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">TestPlatflorm</string>
+    <string name="menu_home">Home</string>
+    <string name="menu_dashboard">Dashboard</string>、
+    <string name="menu_profile">Profile</string>
+    <string name="new_post">New Post</string>
+    <string name="post_title_label">Title</string>
+    <string name="post_title_hint">Enter a title for the post.</string>
+    <string name="add_label">Add Label</string>
 </resources>

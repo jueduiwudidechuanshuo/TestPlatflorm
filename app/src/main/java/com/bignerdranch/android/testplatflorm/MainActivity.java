@@ -4,11 +4,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -19,10 +23,17 @@ import android.widget.LinearLayout;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MAINACTIVITY";
-    private boolean IsEditView = false;
+    private static final Pattern NAME_ADDR_EMAIL_PATTERN =
+            Pattern.compile("\\s*(\"[^\"]*\"|[^<>\"]+)\\s*<([^<>]+)>\\s*");
+
+    private Pattern emailPattern = Patterns.EMAIL_ADDRESS;
+    private Context mContext;
 
     private TextInputLayout mUserInputLayout;
     private TextInputLayout mPwdInputLayout;
@@ -42,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         mUserInputLayout = (TextInputLayout) findViewById(R.id.username_label);
         mPwdInputLayout = (TextInputLayout) findViewById(R.id.password_label);
         mEditLayout = (LinearLayout) findViewById(R.id.edit_label);
+        mLoginButton = (Button) findViewById(R.id.login_button);
 
         TextInputEditText UsereditText = (TextInputEditText) mUserInputLayout.getEditText();
         TextInputEditText PwdeditText = (TextInputEditText) mPwdInputLayout.getEditText();
@@ -82,6 +94,13 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s != null && !isEmailAddress(s.toString())) {
+                    UsereditText.setError("Error Address");
+                    mUserInputLayout.setErrorEnabled(true);
+                } else {
+                    UsereditText.setError(null);
+                    mUserInputLayout.setErrorEnabled(false);
+                }
 
             }
 
@@ -107,11 +126,41 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        mContext = this;
+
+        mLoginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(mContext, HomePageActivity.class);
+                startActivity(i);
+            }
+        });
+
     }
 
     public void hideKeyboard(View view) {
         InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    private static String extractAddrSpec(final String address) {
+        final Matcher match = NAME_ADDR_EMAIL_PATTERN.matcher(address);
+
+        if (match.matches()) {
+            return match.group(2);
+        }
+        return address;
+    }
+
+    private static boolean isEmailAddress(final String address) {
+        if (TextUtils.isEmpty(address)) {
+            return true;
+        }
+
+        final String s = extractAddrSpec(address);
+        final Matcher match = Patterns.EMAIL_ADDRESS.matcher(s);
+        return match.matches();
     }
 
 //

@@ -42,6 +42,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:startIconDrawable="@drawable/icons8_user_24"
+            app:endIconMode="custom"
+            app:endIconDrawable="@drawable/icons8_user_24"
+            app:errorEnabled="true"
             android:hint="Enter UserName"
             android:textColorHint="@color/teal_200">
 
