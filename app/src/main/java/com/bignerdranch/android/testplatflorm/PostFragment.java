@@ -10,12 +10,16 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,11 +30,13 @@ import androidx.fragment.app.Fragment;
 import org.w3c.dom.Text;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class PostFragment extends Fragment {
 
+    private static final String TAG = "PostFragment";
     private static final String ARG_POST_ID = "post_id";
 
     private static final int REQUST_DATE = 0;
@@ -39,10 +45,15 @@ public class PostFragment extends Fragment {
 
     private Post mPost;
     private File mPhotoFile;
+    private List<EditText> editTexts = new ArrayList<EditText>();
+
+    private int Click_Count;
 
     private EditText mTitleField;
     private ImageButton mPhotoButton;
+    private Button mLabelButton;
     private ImageView mPhotoView;
+    private LinearLayout mLabelLayout;
 
     public static PostFragment newInstance(UUID postId) {
         Bundle args = new Bundle();
@@ -65,6 +76,7 @@ public class PostFragment extends Fragment {
     public void onPause() {
         super.onPause();
 
+        mPost.setLabel(Record_Label(editTexts));
         PostLab.get(getActivity())
                 .updatePost(mPost);
     }
@@ -74,9 +86,14 @@ public class PostFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_post, container, false);
 
+        Click_Count = 0;
+
         mPhotoButton = (ImageButton) v.findViewById(R.id.post_camera);
+        mLabelButton = (Button) v.findViewById(R.id.label_add);
+        mLabelLayout = (LinearLayout) v.findViewById(R.id.label_table);
 
         mTitleField = (EditText) v.findViewById(R.id.post_title);
+        mTitleField.setText(mPost.getTitle());
         mTitleField.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -85,12 +102,25 @@ public class PostFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                mPost.setTitle(s.toString());
             }
 
             @Override
             public void afterTextChanged(Editable s) {
 
+            }
+        });
+
+        mLabelButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Click_Count += 1;
+                EditText label_edittext = new EditText(getActivity());
+                label_edittext.setHint("input label for this post");
+                label_edittext.setId(Click_Count);
+                editTexts.add(label_edittext);
+                mLabelLayout.addView(label_edittext);
             }
         });
 
@@ -155,5 +185,19 @@ public class PostFragment extends Fragment {
             mPhotoView.setImageBitmap(bitmap);
         }
 
+    }
+
+    private String Record_Label (List<EditText> editTexts) {
+        String Labels = null;
+
+        for (int i = 0; i < Click_Count; i++) {
+            if (Labels == null) {
+                Labels = editTexts.get(i).getText().toString();
+            } else {
+                Labels = Labels + ";" + editTexts.get(i).getText().toString();
+            }
+        }
+        Log.i(TAG, "labels: " + Labels);
+        return Labels;
     }
 }

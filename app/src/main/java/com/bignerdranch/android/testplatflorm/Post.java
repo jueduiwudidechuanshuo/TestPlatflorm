@@ -8,6 +8,10 @@ public class Post {
     private String mTitle;
     private String mLabel;
 
+    public Post() {
+        this(UUID.randomUUID());
+    }
+
     public Post(UUID id) {
         mId = id;
     }

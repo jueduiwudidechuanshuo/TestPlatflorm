@@ -29,10 +29,13 @@
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/label_post_title"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:text="@string/post_title"/>
 
         <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/flex_label"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:flexWrap="wrap"

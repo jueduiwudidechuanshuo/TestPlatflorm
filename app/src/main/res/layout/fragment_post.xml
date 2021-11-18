@@ -61,12 +61,22 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <ScrollView
         android:id="@+id/post_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:fillViewport="true"
+        android:scrollbars="none">
 
-    </LinearLayout>
+        <LinearLayout
+            android:id="@+id/label_table"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="9dp"
+            android:orientation="vertical">
+
+        </LinearLayout>
+
+    </ScrollView>
 
 </LinearLayout>

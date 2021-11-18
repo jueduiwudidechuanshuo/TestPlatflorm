@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.bignerdranch.android.testplatflorm.database.PostBaseHelper;
 import com.bignerdranch.android.testplatflorm.database.PostCursorWrapper;
@@ -16,6 +17,8 @@ import java.util.UUID;
 
 public class PostLab {
     private static PostLab sPostLab;
+
+    private static final String TAG = "PostLab";
 
     private Context mContext;
     private SQLiteDatabase mDatabase;
@@ -86,6 +89,8 @@ public class PostLab {
         mDatabase.update(PostTable.NAME, values,
                 PostTable.Cols.UUID + " = ?",
                 new String[] { uuidString });
+
+        Log.i(TAG, "post's title: " + post.getTitle());
     }
 
     private PostCursorWrapper queryPosts(String whereClause, String[] whereArgs) {
