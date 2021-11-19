@@ -92,6 +92,8 @@ public class PostFragment extends Fragment {
         mLabelButton = (Button) v.findViewById(R.id.label_add);
         mLabelLayout = (LinearLayout) v.findViewById(R.id.label_table);
 
+        Load_Label(mPost.getLabel());
+
         mTitleField = (EditText) v.findViewById(R.id.post_title);
         mTitleField.setText(mPost.getTitle());
         mTitleField.addTextChangedListener(new TextWatcher() {
@@ -119,6 +121,7 @@ public class PostFragment extends Fragment {
                 EditText label_edittext = new EditText(getActivity());
                 label_edittext.setHint("input label for this post");
                 label_edittext.setId(Click_Count);
+                label_edittext.setSingleLine(true);
                 editTexts.add(label_edittext);
                 mLabelLayout.addView(label_edittext);
             }
@@ -199,5 +202,23 @@ public class PostFragment extends Fragment {
         }
         Log.i(TAG, "labels: " + Labels);
         return Labels;
+    }
+
+    private void Load_Label (String labels) {
+        String[] label_list = null;
+
+        if (labels != null) {
+            label_list = labels.split(";");
+            Click_Count = label_list.length;
+
+            for (int i = 0; i < label_list.length; i++) {
+                EditText et = new EditText(getActivity());
+                et.setText(label_list[i]);
+                et.setId(i);
+                et.setSingleLine(true);
+                editTexts.add(et);
+                mLabelLayout.addView(et);
+            }
+        }
     }
 }

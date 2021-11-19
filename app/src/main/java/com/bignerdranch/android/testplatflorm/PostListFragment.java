@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,8 +24,6 @@ import com.google.android.flexbox.FlexboxLayout;
 
 import java.io.File;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class PostListFragment extends Fragment {
 
@@ -35,6 +32,8 @@ public class PostListFragment extends Fragment {
     private RecyclerView mPostRecyclerView;
     private PostAdapter mAdapter;
     private FlexboxLayout mLabelFlexboxLayout;
+
+    private boolean is_onStop = false;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -139,15 +138,22 @@ public class PostListFragment extends Fragment {
             Log.i(TAG, "post label: " + mPost.getLabel());
             String[] labels = getLabelList(mPost.getLabel());
             Log.i(TAG, "labels: " + labels);
+            Log.i(TAG, "current activity: " + getActivity().toString());
             if (labels != null) {
                 for (int i = 0; i < labels.length; i++) {
                     TextView tv = new TextView(getActivity());
                     tv.setText(labels[i]);
                     tv.setGravity(Gravity.CENTER);
-                    tv.setTextSize(15);
-                    tv.setPadding(5,0,5,0);
+                    tv.setTextSize(20);
+                    tv.setPadding(15,0,15,0);
                     tv.setBackground(getActivity().getDrawable(R.drawable.label_bg));
                     mLabelFlexboxLayout.addView(tv);
+                    ViewGroup.LayoutParams params = tv.getLayoutParams();
+                    if (params instanceof FlexboxLayout.LayoutParams) {
+                        FlexboxLayout.LayoutParams layoutParams = (FlexboxLayout.LayoutParams) params;
+                        layoutParams.setMargins(5, 5, 5, 5);
+//                        layoutParams.setFlexBasisPercent(0.5f);
+                    }
                 }
             }
         }
@@ -177,8 +183,12 @@ public class PostListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull PostHolder holder, int position) {
-            Post post = mPosts.get(position);
-            holder.bind(post);
+            if (!is_onStop) {
+                Post post = mPosts.get(position);
+                Log.i(TAG, "label position: " + position);
+                holder.bind(post);
+                Log.i(TAG, "ooBindViewHolder");
+            }
         }
 
         @Override
@@ -189,5 +199,18 @@ public class PostListFragment extends Fragment {
         public void setPosts(List<Post> posts) {
             mPosts = posts;
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.i(TAG, "OnStart");
+    }
+
+    @Override
+    public void onStop() {
+        is_onStop = true;
+        super.onStop();
+        Log.i(TAG, "OnStop");
     }
 }
