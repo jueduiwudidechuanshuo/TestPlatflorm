@@ -93,6 +93,13 @@ public class PostLab {
         Log.i(TAG, "post's title: " + post.getTitle());
     }
 
+    public void deletePost(Post post) {
+        String uuidString = post.getId().toString();
+        mDatabase.delete(PostTable.NAME,
+                PostTable.Cols.UUID + " = ?",
+                new String[] { uuidString });
+    }
+
     private PostCursorWrapper queryPosts(String whereClause, String[] whereArgs) {
         Cursor cursor = mDatabase.query(
                 PostTable.NAME,

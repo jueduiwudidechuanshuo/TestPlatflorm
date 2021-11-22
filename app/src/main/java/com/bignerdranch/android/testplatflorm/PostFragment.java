@@ -20,6 +20,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -124,6 +125,7 @@ public class PostFragment extends Fragment {
                 label_edittext.setSingleLine(true);
                 editTexts.add(label_edittext);
                 mLabelLayout.addView(label_edittext);
+                Long_Click(label_edittext);
             }
         });
 
@@ -193,7 +195,7 @@ public class PostFragment extends Fragment {
     private String Record_Label (List<EditText> editTexts) {
         String Labels = null;
 
-        for (int i = 0; i < Click_Count; i++) {
+        for (int i = 0; i < editTexts.size(); i++) {
             if (Labels == null) {
                 Labels = editTexts.get(i).getText().toString();
             } else {
@@ -218,7 +220,21 @@ public class PostFragment extends Fragment {
                 et.setSingleLine(true);
                 editTexts.add(et);
                 mLabelLayout.addView(et);
+                Long_Click(et);
             }
         }
+    }
+
+    private void Long_Click(EditText editText) {
+        editText.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                editTexts.remove(editText);
+                mLabelLayout.removeView(editText);
+                Log.i(TAG, "The current label list: " + editTexts.toString());
+                Toast.makeText(getActivity(), "The label: " + editText.getText().toString() + " has been deleted.", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
     }
 }

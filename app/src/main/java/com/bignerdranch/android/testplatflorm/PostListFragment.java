@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bignerdranch.android.testplatflorm.swipedismiss.SwipeDismissTouchListener;
 import com.google.android.flexbox.FlexboxLayout;
 
 import java.io.File;
@@ -115,6 +116,20 @@ public class PostListFragment extends Fragment {
         public PostHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_item_post, parent, false));
             itemView.setOnClickListener(this);
+            itemView.setOnTouchListener(new SwipeDismissTouchListener(itemView, null,
+                    new SwipeDismissTouchListener.DismissCallbacks() {
+                        @Override
+                        public boolean canDismiss(Object token) {
+                            return true;
+                        }
+
+                        @Override
+                        public void onDismiss(View view, Object token) {
+                            mPostRecyclerView.removeView(itemView);
+                            PostLab.get(getActivity()).deletePost(mPost);
+                            updateUI();
+                        }
+                    }));
 
             mTitleTextView = (TextView) itemView.findViewById(R.id.label_post_title);
             mHeadImageView = (ImageView) itemView.findViewById(R.id.head_image);
