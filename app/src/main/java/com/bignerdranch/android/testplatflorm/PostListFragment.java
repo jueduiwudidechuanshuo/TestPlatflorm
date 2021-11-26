@@ -2,6 +2,7 @@ package com.bignerdranch.android.testplatflorm;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -22,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bignerdranch.android.testplatflorm.swipedismiss.SwipeDismissTouchListener;
 import com.google.android.flexbox.FlexboxLayout;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.io.File;
 import java.util.List;
@@ -142,18 +144,18 @@ public class PostListFragment extends Fragment {
                 mTitleTextView.setText(mPost.getTitle());
             }
             mPhotoFile = PostLab.get(getActivity()).getPhotoFile(mPost);
-            if (mPhotoFile == null || !mPhotoFile.exists()) {
+            if (mPost.getUri() == null) {
                 mHeadImageView.setImageDrawable(null);
             } else {
-                Bitmap bitmap = PictureUtils.getScaledBitmap(
-                        mPhotoFile.getPath(), getActivity());
+                Bitmap bitmap = BitmapFactory.decodeFile(mPost.getUri());
                 mHeadImageView.setImageBitmap(bitmap);
             }
 
             Log.i(TAG, "post label: " + mPost.getLabel());
             String[] labels = getLabelList(mPost.getLabel());
             Log.i(TAG, "labels: " + labels);
-            Log.i(TAG, "current activity: " + getActivity().toString());
+            Log.i(TAG, "uri: " + mPost.getUri());
+//            Log.i(TAG, "current activity: " + getActivity().toString());
             if (labels != null) {
                 for (int i = 0; i < labels.length; i++) {
                     TextView tv = new TextView(getActivity());

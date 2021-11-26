@@ -17,10 +17,12 @@ public class PostCursorWrapper extends CursorWrapper {
         String uuidString = getString(getColumnIndex(PostTable.Cols.UUID));
         String title = getString(getColumnIndex(PostTable.Cols.TITLE));
         String label = getString(getColumnIndex(PostTable.Cols.LABEL));
+        String uri = getString(getColumnIndex(PostTable.Cols.URI));
 
         Post post = new Post(UUID.fromString(uuidString));
         post.setTitle(title);
         post.setLabel(label);
+        post.setUri(uri);
 
         return post;
     }

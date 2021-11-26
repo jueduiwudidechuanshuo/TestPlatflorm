@@ -1,12 +1,18 @@
 package com.bignerdranch.android.testplatflorm;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -24,9 +30,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import org.w3c.dom.Text;
 
@@ -35,14 +44,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import pub.devrel.easypermissions.EasyPermissions;
+
 public class PostFragment extends Fragment {
 
     private static final String TAG = "PostFragment";
     private static final String ARG_POST_ID = "post_id";
+    private String[] galleryPermissions = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     private static final int REQUST_DATE = 0;
     private static final int REQUST_CONTACT = 1;
     private static final int REQUST_PHOTO = 2;
+    private static final int REQUST_GALLERY = 3;
 
     private Post mPost;
     private File mPhotoFile;
@@ -141,20 +154,8 @@ public class PostFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                Uri uri = FileProvider.getUriForFile(getActivity(),
-                        "com.bignerdranch.android.testplatflorm.fileprovider", mPhotoFile);
-                captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+                showBottomSheetDialog();
 
-                List<ResolveInfo> cameraActivities = getActivity()
-                        .getPackageManager().queryIntentActivities(captureImage,
-                                PackageManager.MATCH_DEFAULT_ONLY);
-
-                for (ResolveInfo activity : cameraActivities) {
-                    getActivity().grantUriPermission(activity.activityInfo.packageName,
-                            uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                }
-
-                startActivityForResult(captureImage, REQUST_PHOTO);
             }
         });
         mPhotoView = (ImageView) v.findViewById(R.id.post_photo);
@@ -165,11 +166,12 @@ public class PostFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != Activity.RESULT_OK) {
-            return ;
+            return;
         }
 
-        if (resultCode == REQUST_PHOTO) {
+        if (requestCode == REQUST_PHOTO) {
             Uri uri = FileProvider.getUriForFile(getActivity(),
                     "com.bignerdranch.android.testplatflorm.fileprovider",
                     mPhotoFile);
@@ -177,16 +179,59 @@ public class PostFragment extends Fragment {
             getActivity().revokeUriPermission(uri,
                     Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
+            mPost.setUri(mPhotoFile.toString());
+
+            Log.i(TAG, "The picture's file path you took is: " + uri.toString());
+
             updatePhotoView();
+        }
+
+        if (requestCode == REQUST_GALLERY) {
+            if(resultCode == Activity.RESULT_OK && data != null) {
+                Uri selectedImage = data.getData();
+                String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                Cursor cursor = getContext().getContentResolver().query(selectedImage,
+                        filePathColumn, null, null, null);
+                assert cursor != null;
+                cursor.moveToFirst();
+                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                String picturePath = cursor.getString(columnIndex);
+                cursor.close();
+                mPost.setUri(picturePath);
+                Log.i(TAG, "The picture's file path you selected is: " + mPost.getUri());
+//                if (EasyPermissions.hasPermissions(getContext(), galleryPermissions)) {
+                    updatePhotoView();
+//                    Log.i(TAG, "You get the permission to access this picture.");
+//                } else {
+//                    EasyPermissions.requestPermissions(this, "Access for storage",
+//                            101, galleryPermissions);
+//                    updatePhotoView();
+//                    Log.i(TAG, "You don't have permission to get this picture.");
+//                }
+
+            } else {
+                Log.i(TAG, "You don't select any picture.");
+            }
         }
     }
 
     private void updatePhotoView() {
-        if (mPhotoFile == null || !mPhotoFile.exists()) {
+//        if ((mPhotoFile == null && mPost.getUri() == null)|| !mPhotoFile.exists()) {
+//            mPhotoView.setImageDrawable(null);
+//        } else {
+//            Bitmap bitmap = PictureUtils.getScaledBitmap(
+//                    mPost.getUri(), getActivity());
+//            mPhotoView.setImageBitmap(bitmap);
+//        }
+
+
+
+        if (mPost.getUri() == null) {
             mPhotoView.setImageDrawable(null);
         } else {
-            Bitmap bitmap = PictureUtils.getScaledBitmap(
-                    mPhotoFile.getPath(), getActivity());
+//            BitmapFactory.Options options=new BitmapFactory.Options();
+//            options.inJustDecodeBounds=true;
+            Bitmap bitmap = BitmapFactory.decodeFile(mPost.getUri());
             mPhotoView.setImageBitmap(bitmap);
         }
 
@@ -236,5 +281,125 @@ public class PostFragment extends Fragment {
                 return true;
             }
         });
+    }
+
+    public void showBottomSheetDialog() {
+        BottomSheetDialog bottomsheet = new BottomSheetDialog(getContext());
+        bottomsheet.setCancelable(true);
+        bottomsheet.setContentView(R.layout.photo_buttom_select);
+        BottomSheetFunction(bottomsheet);
+        bottomsheet.show();
+    }
+
+    public void BottomSheetFunction(BottomSheetDialog bottomSheetDialog) {
+        TextView Open_Camera = bottomSheetDialog.findViewById(R.id.open_camera);
+        TextView Open_Gallery = bottomSheetDialog.findViewById(R.id.open_gallery);
+        TextView Sheet_Cancel = bottomSheetDialog.findViewById(R.id.cancel_photo);
+
+        Open_Camera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Intent captureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+                Uri uri = FileProvider.getUriForFile(getActivity(),
+                        "com.bignerdranch.android.testplatflorm.fileprovider", mPhotoFile);
+                captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+
+                List<ResolveInfo> cameraActivities = getActivity()
+                        .getPackageManager().queryIntentActivities(captureImage,
+                                PackageManager.MATCH_DEFAULT_ONLY);
+
+                for (ResolveInfo activity : cameraActivities) {
+                    getActivity().grantUriPermission(activity.activityInfo.packageName,
+                            uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                }
+
+                startActivityForResult(captureImage, REQUST_PHOTO);
+                bottomSheetDialog.cancel();
+            }
+        });
+
+        Open_Gallery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(), "Open the local Gallery.", Toast.LENGTH_SHORT).show();
+                openGallery();
+                bottomSheetDialog.cancel();
+            }
+        });
+
+        Sheet_Cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bottomSheetDialog.cancel();
+            }
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                openGallery();
+            } else {
+                Toast.makeText(getContext(),"你被拒绝了",Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, REQUST_GALLERY);
+    }
+
+    @RequiresApi (api = Build.VERSION_CODES.KITKAT)
+    private String handImage(Intent data) {
+        String path = null;
+        Uri uri = data.getData();
+        Log.i(TAG, "The uri you get is : " + uri);
+
+        if (DocumentsContract.isDocumentUri(getContext(), uri)) {
+            String docId = DocumentsContract.getDocumentId(uri);
+            Log.i(TAG, "The docId is : " + docId);
+            if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
+                Log.i(TAG, "The uri's authority is : " + uri.getAuthority());
+                String id = docId.split(":")[1];
+//                String selection = MediaStore.Images.Media._ID+" = ? "+id;
+                String selection = id;
+                Log.i(TAG, "The selection is : " + selection);
+                path = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection);
+            } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
+                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"),Long.valueOf(docId));
+                path = getImagePath(contentUri, null);
+            }
+        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
+            path = getImagePath(uri,null);
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            path = uri.getPath();
+        }
+        return path;
+    }
+
+    private String getImagePath(Uri uri, String selection) {
+        final String[] IMAGE_PROJECTION = {
+                MediaStore.Images.Media.DATA,
+                MediaStore.Images.Media.DISPLAY_NAME,
+                MediaStore.Images.Media.DATE_ADDED,
+                MediaStore.Images.Media._ID,
+        };
+        String path = null;
+        Cursor cursor = getContext().getContentResolver().query(uri, IMAGE_PROJECTION, null,null,null);
+        Log.i(TAG, "The cursor is: " + cursor);
+        while (cursor.moveToNext()) {
+            if (cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media._ID)) == selection) {
+                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            }
+
+            if (cursor == null) {
+                cursor.close();
+            }
+        }
+        Log.i(TAG, "The path is in function getImagePath is : " + path);
+        return path;
     }
 }

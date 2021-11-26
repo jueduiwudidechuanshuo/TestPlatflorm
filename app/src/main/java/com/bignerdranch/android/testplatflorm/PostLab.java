@@ -118,6 +118,7 @@ public class PostLab {
         values.put(PostTable.Cols.UUID, post.getId().toString());
         values.put(PostTable.Cols.TITLE, post.getTitle());
         values.put(PostTable.Cols.LABEL, post.getLabel());
+        values.put(PostTable.Cols.URI, post.getUri());
 
         return values;
     }

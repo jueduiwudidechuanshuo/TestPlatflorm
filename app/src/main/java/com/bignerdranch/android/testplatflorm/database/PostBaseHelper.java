@@ -19,7 +19,8 @@ public class PostBaseHelper extends SQLiteOpenHelper {
                 "_id integer primary key autoincrement, " +
                 PostTable.Cols.UUID + ", " +
                 PostTable.Cols.TITLE + ", " +
-                PostTable.Cols.LABEL +
+                PostTable.Cols.LABEL + ", " +
+                PostTable.Cols.URI +
                 ")"
         );
     }

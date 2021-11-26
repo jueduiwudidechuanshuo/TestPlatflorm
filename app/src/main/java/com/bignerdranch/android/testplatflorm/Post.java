@@ -1,5 +1,7 @@
 package com.bignerdranch.android.testplatflorm;
 
+import android.net.Uri;
+
 import java.util.UUID;
 
 public class Post {
@@ -7,6 +9,7 @@ public class Post {
     private String mCode;
     private String mTitle;
     private String mLabel;
+    private String mUri;
 
     public Post() {
         this(UUID.randomUUID());
@@ -46,6 +49,14 @@ public class Post {
 
     public void setLabel(String label) {
         mLabel = label;
+    }
+
+    public String getUri() {
+        return mUri;
+    }
+
+    public void setUri(String uri) {
+        mUri = uri;
     }
 
     public String getPhotoFilename() {

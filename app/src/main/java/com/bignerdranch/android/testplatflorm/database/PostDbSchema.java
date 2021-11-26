@@ -8,6 +8,7 @@ public class PostDbSchema {
             public static final String UUID = "uuid";
             public static final String TITLE = "title";
             public static final String LABEL = "label";
+            public static final String URI = "uri";
         }
     }
 

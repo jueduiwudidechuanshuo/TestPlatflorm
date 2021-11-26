@@ -8,4 +8,8 @@
     <string name="post_title_label">Title</string>
     <string name="post_title_hint">Enter a title for the post.</string>
     <string name="add_label">Add Label</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="cancel">Cancel</string>
+    <string name="finish">Finish</string>
 </resources>
